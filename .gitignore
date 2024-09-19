@@ -1,6 +1,6 @@
-/idea/
 /api-gateway/.idea
 /auth-svc/.idea
 /order-svc/.idea
 /review-svc/.idea
 /product-svc/.idea
+.idea
