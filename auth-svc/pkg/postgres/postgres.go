@@ -7,7 +7,6 @@ import (
 )
 
 func InitDB(cfg *config.Config) (*sqlx.DB, error) {
-
 	dataSourceName := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s",
 		cfg.Postgres.Host,
 		cfg.Postgres.Port,
