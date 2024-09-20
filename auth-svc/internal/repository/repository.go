@@ -6,6 +6,6 @@ import (
 )
 
 type UserRepository interface {
-	SaveUser(ctx context.Context, email string, passHash string) (int64, error)
+	SaveUser(ctx context.Context, email string, passHash []byte) (int64, error)
 	GetUserByEmail(ctx context.Context, email string) (models.User, error)
 }

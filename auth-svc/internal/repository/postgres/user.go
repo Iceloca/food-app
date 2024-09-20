@@ -18,7 +18,7 @@ func NewUserRepository(db *sqlx.DB) repository.UserRepository {
 }
 
 // TODO add logger
-func (r *userRepository) SaveUser(ctx context.Context, email string, passHash string) (int64, error) {
+func (r *userRepository) SaveUser(ctx context.Context, email string, passHash []byte) (int64, error) {
 	stmt, err := r.db.PrepareContext(ctx, "INSERT INTO users (email, pass_hash) VALUES ($1, $2)")
 	if err != nil {
 		return 0, err
@@ -47,7 +47,7 @@ func (r *userRepository) GetUserByEmail(ctx context.Context, email string) (mode
 
 	var user models.User
 	row := stmt.QueryRowContext(ctx, email)
-	if err = row.Scan(&user.ID, &user.Email, &user.Password); err != nil {
+	if err = row.Scan(&user.ID, &user.Email, &user.PassHash); err != nil {
 		return models.User{}, nil
 	}
 
