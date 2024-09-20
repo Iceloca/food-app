@@ -3,7 +3,7 @@ grpc:
   timeout : 10h
 postgres:
   host : localhost
-  port : 5050
-  username : r1nb0
+  port : 5432
+  username : postgres
   dbname : users
   sslmode : enabled
