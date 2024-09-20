@@ -33,6 +33,7 @@ func parseConfig(v *viper.Viper) (*Config, error) {
 		log.Printf("unable to parse config: %v", err)
 		return nil, err
 	}
+	cfg.Postgres.Password = os.Getenv("PG_PASSWORD")
 	return &cfg, nil
 }
 
