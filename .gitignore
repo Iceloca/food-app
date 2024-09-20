@@ -4,3 +4,4 @@
 /review-svc/.idea
 /product-svc/.idea
 .idea
+.env
