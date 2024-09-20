@@ -11,6 +11,7 @@ import (
 type Config struct {
 	GRPC     GRPCConfig
 	Postgres PostgresConfig
+	TokenTTL time.Duration
 }
 
 type GRPCConfig struct {
