@@ -1,35 +1,31 @@
 package postgres
 
 import (
-	"context"
 	"fmt"
-	"github.com/jackc/pgx/v5"
+	"github.com/jmoiron/sqlx"
 	"github.com/r1nb0/food-app/auth-svc/internal/config"
 )
 
-func InitDB(cfg *config.Config) (*pgx.Conn, error) {
-	url := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
-		cfg.Postgres.Username,
-		cfg.Postgres.Password,
+func InitDB(cfg *config.Config) (*sqlx.DB, error) {
+
+	dataSourceName := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=%s password=%s",
 		cfg.Postgres.Host,
 		cfg.Postgres.Port,
+		cfg.Postgres.Username,
 		cfg.Postgres.DBName,
 		cfg.Postgres.SSLMode,
+		cfg.Postgres.Password,
 	)
 
-	conn, err := pgx.Connect(context.Background(), url)
+	db, err := sqlx.Connect("postgres", dataSourceName)
 
 	if err != nil {
 		return nil, err
 	}
 
-	if err = conn.Ping(context.Background()); err != nil {
+	if err = db.Ping(); err != nil {
 		return nil, err
 	}
 
-	return conn, err
-}
-
-func CloseDB(conn *pgx.Conn) error {
-	return conn.Close(context.Background())
+	return db, err
 }
