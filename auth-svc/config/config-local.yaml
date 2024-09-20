@@ -1,9 +1,10 @@
 grpc:
   port : 44044
-  timeout : 10h
+  timeout : 5s
 postgres:
   host : localhost
   port : 5432
   username : postgres
   dbname : users
   sslmode : disable
+tokenttl: 5h
