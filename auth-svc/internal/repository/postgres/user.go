@@ -19,18 +19,13 @@ func NewUserRepository(db *sqlx.DB) repository.UserRepository {
 
 // TODO add logger
 func (r *userRepository) SaveUser(ctx context.Context, email string, passHash []byte) (int64, error) {
-	stmt, err := r.db.PrepareContext(ctx, "INSERT INTO users (email, pass_hash) VALUES ($1, $2)")
+	stmt, err := r.db.PrepareContext(ctx, "INSERT INTO users (email, pass_hash) VALUES ($1, $2) RETURNING id")
 	if err != nil {
 		return 0, err
 	}
 
-	res, err := stmt.ExecContext(ctx, email, passHash)
-	if err != nil {
-		return 0, err
-	}
-
-	id, err := res.LastInsertId()
-	if err != nil {
+	var id int64
+	if err = stmt.QueryRowContext(ctx, email, passHash).Scan(&id); err != nil {
 		return 0, err
 	}
 
