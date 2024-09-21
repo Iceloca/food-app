@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func setupLogger(env string) *slog.Logger {
+func SetupLogger(env string) *slog.Logger {
 	var logger *slog.Logger
 
 	switch env {
