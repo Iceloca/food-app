@@ -3,9 +3,9 @@ package app
 import (
 	"github.com/r1nb0/food-app/auth-svc/internal/app/grpc"
 	"github.com/r1nb0/food-app/auth-svc/internal/config"
+	"github.com/r1nb0/food-app/auth-svc/internal/lib/postgres"
 	userRepo "github.com/r1nb0/food-app/auth-svc/internal/repository/postgres"
 	"github.com/r1nb0/food-app/auth-svc/internal/service"
-	"github.com/r1nb0/food-app/auth-svc/pkg/postgres"
 	"log"
 )
 

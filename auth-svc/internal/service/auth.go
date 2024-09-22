@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"github.com/r1nb0/food-app/auth-svc/internal/lib"
+	"github.com/r1nb0/food-app/auth-svc/internal/lib/jwt"
 	"github.com/r1nb0/food-app/auth-svc/internal/repository"
 	"golang.org/x/crypto/bcrypt"
 	"time"
@@ -28,7 +28,7 @@ func (s *AuthService) Login(ctx context.Context, email string, pass string) (str
 		return "", err
 	}
 
-	token, err := lib.NewToken(user, s.tokenTTL)
+	token, err := jwt.NewToken(user, s.tokenTTL)
 	if err != nil {
 		return "", err
 	}
