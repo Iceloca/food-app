@@ -1,0 +1,7 @@
+grpc:
+  port: 45045
+mongodb:
+  port: 27017
+  host: localhost
+  dbname: products
+  collection: products
