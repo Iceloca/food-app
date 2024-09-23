@@ -2,23 +2,19 @@ package auth
 
 import (
 	"context"
+	"github.com/r1nb0/food-app/auth-svc/internal/service"
 	authv1 "github.com/r1nb0/protos/gen/go/auth"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-type Auth interface {
-	Login(ctx context.Context, email string, pass string) (string, error)
-	Register(ctx context.Context, email string, pass string) (int64, error)
-}
-
 type authServer struct {
 	authv1.UnimplementedAuthServer
-	auth Auth
+	auth service.Auth
 }
 
-func Register(gRPCServer *grpc.Server, auth Auth) {
+func Register(gRPCServer *grpc.Server, auth service.Auth) {
 	authv1.RegisterAuthServer(gRPCServer, &authServer{auth: auth})
 }
 
