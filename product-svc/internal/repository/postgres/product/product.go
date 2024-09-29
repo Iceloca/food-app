@@ -22,14 +22,15 @@ func (r *productRepository) Create(ctx context.Context, product models.ProductCr
 
 	stmt, err := r.db.PrepareContext(
 		ctx,
-		`INSERT INTO PRODUCT (
+		`
+		INSERT INTO PRODUCT (
              name,
         	 description,
              image_url,
         	 price,
              is_daily_rec,
              category_id
-         ) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+        ) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
 	)
 	if err != nil {
 		return 0, err
@@ -81,7 +82,8 @@ func (r *productRepository) Delete(ctx context.Context, id int64) error {
 func (r *productRepository) GetAll(ctx context.Context) ([]models.Product, error) {
 	stmt, err := r.db.PrepareContext(
 		ctx,
-		`SELECT 
+		`
+		SELECT 
 			id, 
 			name, 
 			description, 
@@ -115,7 +117,8 @@ func (r *productRepository) GetAll(ctx context.Context) ([]models.Product, error
 func (r *productRepository) GetByID(ctx context.Context, id int64) (models.Product, error) {
 	stmt, err := r.db.PrepareContext(
 		ctx,
-		`SELECT 
+		`
+		SELECT 
     		id, 
     		name, 
     		description, 
@@ -148,7 +151,8 @@ func (r *productRepository) GetByID(ctx context.Context, id int64) (models.Produ
 func (r *productRepository) GetDailyRecs(ctx context.Context) ([]models.Product, error) {
 	stmt, err := r.db.PrepareContext(
 		ctx,
-		`SELECT 
+		`
+		SELECT 
     	    id, 
     	    name, 
     	    description, 
@@ -183,7 +187,8 @@ func (r *productRepository) GetDailyRecs(ctx context.Context) ([]models.Product,
 func (r *productRepository) GetByCategory(ctx context.Context, categoryID int64) ([]models.Product, error) {
 	stmt, err := r.db.PrepareContext(
 		ctx,
-		`SELECT 
+		`
+		SELECT 
         	product.id, 
         	product.name, 
         	product.description, 
@@ -193,7 +198,7 @@ func (r *productRepository) GetByCategory(ctx context.Context, categoryID int64)
         	product.category_id 
     	FROM product 
     	JOIN category 
-    	ON product.category_id = category.id`,
+       	ON product.category_id = category.id`,
 	)
 	if err != nil {
 		return nil, err
