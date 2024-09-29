@@ -184,15 +184,15 @@ func (r *productRepository) GetByCategory(ctx context.Context, categoryID int64)
 	stmt, err := r.db.PrepareContext(
 		ctx,
 		`SELECT 
-        product.id, 
-        product.name, 
-        product.description, 
-        product.image_url, 
-        product.price, 
-        product.is_daily_rec, 
-        product.category_id
-    FROM product
-    JOIN category
+            product.id, 
+            product.name, 
+            product.description, 
+            product.image_url, 
+            product.price, 
+            product.is_daily_rec, 
+            product.category_id
+        FROM product
+        JOIN category
         ON product.category_id = category.id`,
 	)
 	if err != nil {
