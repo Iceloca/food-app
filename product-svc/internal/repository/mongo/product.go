@@ -114,19 +114,10 @@ func (r *productRepository) GetProductByID(ctx context.Context, id string) (mode
 func (r *productRepository) GetAllProducts(ctx context.Context) ([]models.Product, error) {
 	cur, err := r.collection.Find(ctx, bson.M{})
 	if err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			return nil, repository.ErrNotFound
-		}
 		return nil, err
 	}
-	defer func() {
-		if _ = cur.Close(ctx); err != nil {
-			if err != nil {
-				//TODO logger errors.Join(err, errCur)
-			}
-			//TODO logger errCur
-		}
-	}()
+
+	defer closeCursor(ctx, cur, err)
 
 	var products []models.Product
 	for cur.Next(ctx) {
@@ -138,6 +129,9 @@ func (r *productRepository) GetAllProducts(ctx context.Context) ([]models.Produc
 			product.ID = objectID.Hex()
 		}
 		products = append(products, product)
+	}
+	if len(products) == 0 {
+		return nil, repository.ErrNotFound
 	}
 
 	return products, nil
@@ -146,19 +140,9 @@ func (r *productRepository) GetAllProducts(ctx context.Context) ([]models.Produc
 func (r *productRepository) GetProductsByCategory(ctx context.Context, categoryName string) ([]models.Product, error) {
 	cur, err := r.collection.Find(ctx, bson.M{"category.name": categoryName})
 	if err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			return nil, repository.ErrNotFound
-		}
 		return nil, err
 	}
-	defer func() {
-		if _ = cur.Close(ctx); err != nil {
-			if err != nil {
-				//TODO logger errors.Join(err, errCur)
-			}
-			//TODO logger errCur
-		}
-	}()
+	defer closeCursor(ctx, cur, err)
 
 	var products []models.Product
 	for cur.Next(ctx) {
@@ -171,6 +155,49 @@ func (r *productRepository) GetProductsByCategory(ctx context.Context, categoryN
 		}
 		products = append(products, product)
 	}
+	if len(products) == 0 {
+		return nil, repository.ErrNotFound
+	}
 
 	return products, nil
+}
+
+func (r *productRepository) GetAllCategories(ctx context.Context) ([]models.CategoryProduct, error) {
+
+	return nil, nil
+}
+
+func (r *productRepository) GetBestProducts(ctx context.Context) ([]models.Product, error) {
+	cur, err := r.collection.Find(ctx, bson.M{"isbestproduct": true})
+	if err != nil {
+		return nil, err
+	}
+
+	defer closeCursor(ctx, cur, err)
+
+	var products []models.Product
+	for cur.Next(ctx) {
+		var product models.Product
+		if err := cur.Decode(&product); err != nil {
+			return nil, err
+		}
+		if objectID, ok := cur.Current.Lookup("_id").ObjectIDOK(); ok {
+			product.ID = objectID.Hex()
+		}
+		products = append(products, product)
+	}
+	if len(products) == 0 {
+		return nil, repository.ErrNotFound
+	}
+
+	return products, nil
+}
+
+func closeCursor(ctx context.Context, cur *mongo.Cursor, err error) {
+	if errCur := cur.Close(ctx); errCur != nil {
+		if err != nil {
+			//TODO logger errors.Join(err, errCur)
+		}
+		//TODO logger errCur
+	}
 }
