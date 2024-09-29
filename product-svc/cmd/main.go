@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"github.com/r1nb0/food-app/product-svc/internal/app"
 	"github.com/r1nb0/food-app/product-svc/internal/config"
 	"log"
@@ -25,7 +26,7 @@ func main() {
 
 	stop := make(chan os.Signal, 1)
 
-	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
 
 	<-stop
 
