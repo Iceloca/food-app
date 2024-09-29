@@ -22,14 +22,13 @@ func (r *productRepository) Create(ctx context.Context, product models.ProductCr
 
 	stmt, err := r.db.PrepareContext(
 		ctx,
-		`
-		INSERT INTO PRODUCT (
-             name,
-        	 description,
-             image_url,
-        	 price,
-             is_daily_rec,
-             category_id
+		`INSERT INTO PRODUCT (
+            name,
+            description,
+            image_url,
+            price,
+            is_daily_rec,
+            category_id
         ) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
 	)
 	if err != nil {
@@ -82,15 +81,14 @@ func (r *productRepository) Delete(ctx context.Context, id int64) error {
 func (r *productRepository) GetAll(ctx context.Context) ([]models.Product, error) {
 	stmt, err := r.db.PrepareContext(
 		ctx,
-		`
-		SELECT 
-			id, 
-			name, 
-			description, 
-			image_url, 
-			price,
-			is_daily_rec, 
-			category_id 
+		`SELECT 
+		    id, 
+		    name, 
+		    description, 
+		    image_url, 
+		    price,
+		    is_daily_rec, 
+		    category_id 
 		FROM product`,
 	)
 	if err != nil {
@@ -117,15 +115,14 @@ func (r *productRepository) GetAll(ctx context.Context) ([]models.Product, error
 func (r *productRepository) GetByID(ctx context.Context, id int64) (models.Product, error) {
 	stmt, err := r.db.PrepareContext(
 		ctx,
-		`
-		SELECT 
-    		id, 
-    		name, 
-    		description, 
-    		image_url, 
-    		price, 
-    		is_daily_rec, 
-    		category_id 
+		`SELECT 
+            id, 
+    	    name, 
+    	    description, 
+    	    image_url, 
+    	    price, 
+            is_daily_rec, 
+    	    category_id 
 		FROM product WHERE id = $1`,
 	)
 	if err != nil {
@@ -151,15 +148,14 @@ func (r *productRepository) GetByID(ctx context.Context, id int64) (models.Produ
 func (r *productRepository) GetDailyRecs(ctx context.Context) ([]models.Product, error) {
 	stmt, err := r.db.PrepareContext(
 		ctx,
-		`
-		SELECT 
+		`SELECT 
     	    id, 
     	    name, 
     	    description, 
     	    image_url, 
     	    price, 
     	    is_daily_rec, 
-    	    category_id
+            category_id
         FROM product 
         WHERE is_daily_rec = true`,
 	)
@@ -187,18 +183,17 @@ func (r *productRepository) GetDailyRecs(ctx context.Context) ([]models.Product,
 func (r *productRepository) GetByCategory(ctx context.Context, categoryID int64) ([]models.Product, error) {
 	stmt, err := r.db.PrepareContext(
 		ctx,
-		`
-		SELECT 
-        	product.id, 
-        	product.name, 
-        	product.description, 
-        	product.image_url, 
-        	product.price, 
-        	product.is_daily_rec, 
-        	product.category_id 
-    	FROM product 
-    	JOIN category 
-       	ON product.category_id = category.id`,
+		`SELECT 
+            product.id, 
+            product.name, 
+            product.description, 
+            product.image_url, 
+            product.price, 
+            product.is_daily_rec, 
+            product.category_id 
+    	 FROM product 
+    	 JOIN category 
+       	 ON product.category_id = category.id`,
 	)
 	if err != nil {
 		return nil, err
