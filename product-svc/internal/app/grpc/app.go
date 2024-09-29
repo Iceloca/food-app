@@ -1,7 +1,7 @@
-package app
+package grpc
 
 import (
-	"github.com/r1nb0/food-app/product-svc/internal/grpc/product"
+	"github.com/r1nb0/food-app/product-svc/internal/grpc/category"
 	"github.com/r1nb0/food-app/product-svc/internal/service"
 	"google.golang.org/grpc"
 	"log"
@@ -13,10 +13,10 @@ type App struct {
 	port       string
 }
 
-func New(productService service.ProductService, port string) *App {
+func New(categoryService service.CategoryService, port string) *App {
 	gRPCServer := grpc.NewServer()
 
-	product.Register(gRPCServer, productService)
+	category.Register(gRPCServer, categoryService)
 
 	return &App{
 		gRPCServer: gRPCServer,
@@ -30,7 +30,7 @@ func (a *App) Run() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	if err := a.gRPCServer.Serve(lis); err != nil {
+	if err = a.gRPCServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }

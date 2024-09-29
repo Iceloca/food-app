@@ -1,7 +1,9 @@
 grpc:
-  port: 45045
-mongodb:
-  port: 27017
-  host: localhost
-  dbname: products
-  collection: products
+  port : 45045
+  timeout : 5s
+postgres:
+  host : localhost
+  port : 5432
+  username : postgres
+  dbname : products
+  sslmode : disable

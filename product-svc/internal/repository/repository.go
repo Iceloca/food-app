@@ -7,17 +7,25 @@ import (
 )
 
 var (
-	ErrNotFound      = errors.New("product not found")
-	ErrAlreadyExists = errors.New("product already exists")
+	ErrNotFound      = errors.New("entity not found")
+	ErrAlreadyExists = errors.New("entity already exists")
+	ErrUpdate        = errors.New("incorrect data for update")
 )
 
 type ProductRepository interface {
-	CreateProduct(ctx context.Context, dto models.CreateProductDTO) (string, error)
-	UpdateProduct(ctx context.Context, dto models.UpdateProductDTO) (bool, error)
-	DeleteProduct(ctx context.Context, id string) (bool, error)
-	GetProductByID(ctx context.Context, id string) (models.Product, error)
-	GetAllProducts(ctx context.Context) ([]models.Product, error)
-	GetProductsByCategory(ctx context.Context, categoryName string) ([]models.Product, error)
-	GetAllCategories(ctx context.Context) ([]models.CategoryProduct, error)
-	GetBestProducts(ctx context.Context) ([]models.Product, error)
+	Create(ctx context.Context, product models.ProductCreate) (int64, error)
+	Update(ctx context.Context, product models.Product) error
+	Delete(ctx context.Context, id int64) error
+	GetAll(ctx context.Context) ([]models.Product, error)
+	GetByID(ctx context.Context, id int64) (models.Product, error)
+	GetByCategory(ctx context.Context, categoryID int64) ([]models.Product, error)
+	GetDailyRecs(ctx context.Context) ([]models.Product, error)
+}
+
+type CategoryRepository interface {
+	Create(ctx context.Context, category models.CategoryCreate) (int64, error)
+	Update(ctx context.Context, category models.Category) error
+	Delete(ctx context.Context, id int64) error
+	GetAll(ctx context.Context) ([]models.Category, error)
+	GetByID(ctx context.Context, id int64) (models.Category, error)
 }

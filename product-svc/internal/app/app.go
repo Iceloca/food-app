@@ -1,30 +1,29 @@
 package app
 
 import (
-	"github.com/r1nb0/food-app/product-svc/internal/app/app"
+	"github.com/r1nb0/food-app/product-svc/internal/app/grpc"
 	"github.com/r1nb0/food-app/product-svc/internal/config"
-	"github.com/r1nb0/food-app/product-svc/internal/lib/mongo"
-	productRepo "github.com/r1nb0/food-app/product-svc/internal/repository/mongo"
-	"github.com/r1nb0/food-app/product-svc/internal/service/product"
+	"github.com/r1nb0/food-app/product-svc/internal/lib/postgres"
+	categoryRepo "github.com/r1nb0/food-app/product-svc/internal/repository/postgres/category"
+	categoryServ "github.com/r1nb0/food-app/product-svc/internal/service/category"
 	"log"
 )
 
 type App struct {
-	GRPCServer *app.App
+	GRPCServer *grpc.App
 }
 
 func New(cfg *config.Config) *App {
-	client, err := mongo.InitClient(cfg)
+	db, err := postgres.InitDB(cfg)
 	if err != nil {
-		log.Fatalf("error of init client: %v", err)
+		log.Fatalf("error connecting to database: %v", err)
 	}
-	db := client.Database(cfg.MongoDB.DBName)
 
-	productRepository := productRepo.NewProductRepository(db, cfg.MongoDB.Collection)
-	productService := product.NewProductService(productRepository)
-	grpcApp := app.New(productService, cfg.GRPC.Port)
+	categoryRepository := categoryRepo.NewCategoryRepository(db)
+	categoryService := categoryServ.NewCategoryService(categoryRepository)
+	gRPCServer := grpc.New(categoryService, cfg.GRPC.Port)
 
 	return &App{
-		GRPCServer: grpcApp,
+		GRPCServer: gRPCServer,
 	}
 }

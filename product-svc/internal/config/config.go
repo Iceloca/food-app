@@ -5,22 +5,26 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"os"
+	"time"
 )
 
 type Config struct {
-	GRPC    GRPCConfig
-	MongoDB MongoDBConfig
+	GRPC     GRPCConfig
+	Postgres PostgresConfig
 }
 
 type GRPCConfig struct {
-	Port string
+	Port    string        `yaml:"port"`
+	Timeout time.Duration `yaml:"timeout"`
 }
 
-type MongoDBConfig struct {
-	Port       string
-	Host       string
-	DBName     string
-	Collection string
+type PostgresConfig struct {
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	DBName   string `yaml:"dbname"`
+	SSLMode  string `yaml:"sslmode"`
 }
 
 func parseConfig(v *viper.Viper) (*Config, error) {
@@ -29,6 +33,7 @@ func parseConfig(v *viper.Viper) (*Config, error) {
 		log.Printf("unable to parse config: %v", err)
 		return nil, err
 	}
+	cfg.Postgres.Password = os.Getenv("PG_PASSWORD")
 	return &cfg, nil
 }
 
