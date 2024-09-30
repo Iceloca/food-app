@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"github.com/r1nb0/food-app/product-svc/internal/grpc/category"
+	"github.com/r1nb0/food-app/product-svc/internal/grpc/product"
 	"github.com/r1nb0/food-app/product-svc/internal/service"
 	"google.golang.org/grpc"
 	"log"
@@ -13,10 +14,15 @@ type App struct {
 	port       string
 }
 
-func New(categoryService service.CategoryService, port string) *App {
+func New(
+	categoryService service.CategoryService,
+	productService service.ProductService,
+	port string,
+) *App {
 	gRPCServer := grpc.NewServer()
 
 	category.Register(gRPCServer, categoryService)
+	product.Register(gRPCServer, productService)
 
 	return &App{
 		gRPCServer: gRPCServer,

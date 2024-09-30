@@ -19,7 +19,6 @@ func NewProductRepository(db *sqlx.DB) repository.ProductRepository {
 }
 
 func (r *productRepository) Create(ctx context.Context, product models.ProductCreate) (int64, error) {
-
 	stmt, err := r.db.PrepareContext(
 		ctx,
 		`INSERT INTO PRODUCT (
@@ -52,8 +51,8 @@ func (r *productRepository) Create(ctx context.Context, product models.ProductCr
 }
 
 func (r *productRepository) Update(ctx context.Context, product models.Product) error {
-	//TODO implement me
-	panic("implement me")
+	//TODO implement
+	return nil
 }
 
 func (r *productRepository) Delete(ctx context.Context, id int64) error {
@@ -191,15 +190,13 @@ func (r *productRepository) GetByCategory(ctx context.Context, categoryID int64)
             product.price, 
             product.is_daily_rec, 
             product.category_id
-        FROM product
-        JOIN category
-        ON product.category_id = category.id`,
+        FROM product WHERE category_id = $1`,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := stmt.QueryContext(ctx)
+	rows, err := stmt.QueryContext(ctx, categoryID)
 	if err != nil {
 		return nil, err
 	}
@@ -225,6 +222,7 @@ func scanProduct(rows *sql.Rows) (models.Product, error) {
 		&product.ImageURL,
 		&product.Price,
 		&product.IsDailyRec,
+		&product.CategoryID,
 	); err != nil {
 		return models.Product{}, err
 	}

@@ -5,7 +5,9 @@ import (
 	"github.com/r1nb0/food-app/product-svc/internal/config"
 	"github.com/r1nb0/food-app/product-svc/internal/lib/postgres"
 	categoryRepo "github.com/r1nb0/food-app/product-svc/internal/repository/postgres/category"
+	productRepo "github.com/r1nb0/food-app/product-svc/internal/repository/postgres/product"
 	categoryServ "github.com/r1nb0/food-app/product-svc/internal/service/category"
+	productServ "github.com/r1nb0/food-app/product-svc/internal/service/product"
 	"log"
 )
 
@@ -21,7 +23,9 @@ func New(cfg *config.Config) *App {
 
 	categoryRepository := categoryRepo.NewCategoryRepository(db)
 	categoryService := categoryServ.NewCategoryService(categoryRepository)
-	gRPCServer := grpc.New(categoryService, cfg.GRPC.Port)
+	productRepository := productRepo.NewProductRepository(db)
+	productService := productServ.NewProductService(productRepository)
+	gRPCServer := grpc.New(categoryService, productService, cfg.GRPC.Port)
 
 	return &App{
 		GRPCServer: gRPCServer,
