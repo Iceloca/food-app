@@ -8,8 +8,9 @@ import (
 )
 
 type Config struct {
-	Port           string
-	AuthServiceURL string
+	Port              string
+	AuthServiceURL    string
+	ProductServiceURL string
 }
 
 func parseConfig(v *viper.Viper) (*Config, error) {
