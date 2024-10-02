@@ -39,6 +39,14 @@ github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 h1:Jamvg5psRI
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/r1nb0/protos v0.0.3 h1:8wC8rl3l4ItSkGJA3rEuXfy8VHh6+Fo7WVY4gliE5rA=
 github.com/r1nb0/protos v0.0.3/go.mod h1:Dde09cMiCS/MvkcGMyblSHmwtiYhuy6bIafe/DBK7Jc=
+github.com/r1nb0/protos v0.0.4 h1:XTi/CS4qOTv7L87moTLMpHWU6Dui06Y39MhHp9dt91w=
+github.com/r1nb0/protos v0.0.4/go.mod h1:czLz92Pc/gErRm3bc6y66H1QmIWOmZDTwNAJyJjia7s=
+github.com/r1nb0/protos v0.0.5 h1:Bdcj140m2MqdcQNAiGWGGUEJ7pRoVVfyfENOlEb7nZo=
+github.com/r1nb0/protos v0.0.5/go.mod h1:czLz92Pc/gErRm3bc6y66H1QmIWOmZDTwNAJyJjia7s=
+github.com/r1nb0/protos v0.0.6 h1:3TIPHPJzHkSjTy9+DJ1Z4HwHejIV2gHcTB7ZN8IPwdk=
+github.com/r1nb0/protos v0.0.6/go.mod h1:czLz92Pc/gErRm3bc6y66H1QmIWOmZDTwNAJyJjia7s=
+github.com/r1nb0/protos v0.0.11 h1:DLBhVGrpsEdRjitKumtrofEYdkK1mm2DN8i5vk02GF4=
+github.com/r1nb0/protos v0.0.11/go.mod h1:2MaJ25ePrJ+7LtXOhv/pmYpR4w0nbJyB97OIg3QAg+o=
 github.com/rogpeppe/go-internal v1.9.0 h1:73kH8U+JUqXU8lRuOHeVHaa/SZPifC7BkcraZVejAe8=
 github.com/rogpeppe/go-internal v1.9.0/go.mod h1:WtVeX8xhTBvf0smdhujwtBcq4Qrzq/fJaraNFVN+nFs=
 github.com/sagikazarmark/locafero v0.4.0 h1:HApY1R9zGo4DBgr7dqsTH/JJxLTTsOt7u6keLGt6kNQ=

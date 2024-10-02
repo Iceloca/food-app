@@ -7,7 +7,7 @@ require (
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
-	github.com/r1nb0/protos v0.0.3
+	github.com/r1nb0/protos v0.0.11
 	github.com/spf13/viper v1.19.0
 	golang.org/x/crypto v0.27.0
 	google.golang.org/grpc v1.67.0

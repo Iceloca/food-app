@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"github.com/r1nb0/food-app/auth-svc/internal/grpc/auth"
+	"github.com/r1nb0/food-app/auth-svc/internal/service"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -12,7 +13,7 @@ type App struct {
 	port       string
 }
 
-func New(authService auth.Auth, port string) *App {
+func New(authService service.Auth, port string) *App {
 	gRPCServer := grpc.NewServer()
 
 	auth.Register(gRPCServer, authService)
@@ -26,11 +27,11 @@ func New(authService auth.Auth, port string) *App {
 func (a *App) Run() {
 	lis, err := net.Listen("tcp", ":"+a.port)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("failed to listen: %v", err)
 	}
 
 	if err = a.gRPCServer.Serve(lis); err != nil {
-		log.Fatal(err)
+		log.Fatalf("failed to serve: %v", err)
 	}
 }
 
