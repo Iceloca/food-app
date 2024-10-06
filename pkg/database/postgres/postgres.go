@@ -1,10 +1,10 @@
-package database
+package postgres
 
 import (
 	"github.com/jmoiron/sqlx"
 )
 
-func InitPostgres(dataSourceName string) (*sqlx.DB, error) {
+func InitDB(dataSourceName string) (*sqlx.DB, error) {
 	db, err := sqlx.Connect("postgres", dataSourceName)
 
 	if err != nil {
