@@ -2,7 +2,9 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"github.com/r1nb0/food-app/auth-svc/internal/service"
+	"github.com/r1nb0/food-app/pkg/database"
 	authv1 "github.com/r1nb0/protos/gen/go/auth"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -31,6 +33,9 @@ func (s *authServer) Login(
 
 	token, err := s.auth.Login(ctx, req.Email, req.Password)
 	if err != nil {
+		if errors.Is(err, service.ErrInvalidCredentials) {
+			return nil, status.Error(codes.InvalidArgument, "invalid password or email")
+		}
 		return nil, status.Error(codes.Internal, "failed to login")
 	}
 	return &authv1.LoginResponse{Token: token}, nil
@@ -48,6 +53,9 @@ func (s *authServer) Register(
 	}
 	uid, err := s.auth.Register(ctx, req.Email, req.Password)
 	if err != nil {
+		if errors.Is(err, database.ErrAlreadyExists) {
+			return nil, status.Error(codes.InvalidArgument, "user already exists")
+		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 

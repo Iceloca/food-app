@@ -1,6 +1,13 @@
 package service
 
-import "context"
+import (
+	"context"
+	"errors"
+)
+
+var (
+	ErrInvalidCredentials = errors.New("invalid credentials")
+)
 
 type Auth interface {
 	Login(ctx context.Context, email string, pass string) (string, error)

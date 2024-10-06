@@ -9,8 +9,8 @@ import (
 )
 
 type Config struct {
-	GRPC     GRPCConfig
-	Postgres PostgresConfig
+	GRPC     GRPCConfig     `yaml:"grpc"`
+	Postgres PostgresConfig `yaml:"postgres"`
 	TokenTTL time.Duration
 }
 
