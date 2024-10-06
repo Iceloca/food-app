@@ -2,14 +2,7 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"github.com/r1nb0/food-app/product-svc/internal/domain/models"
-)
-
-var (
-	ErrNotFound      = errors.New("entity not found")
-	ErrAlreadyExists = errors.New("entity already exists")
-	ErrUpdate        = errors.New("incorrect data for update")
 )
 
 type ProductRepository interface {

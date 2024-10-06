@@ -3,7 +3,11 @@ package product
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
+	"github.com/r1nb0/food-app/pkg/database"
+	"github.com/r1nb0/food-app/pkg/database/postgres"
 	"github.com/r1nb0/food-app/product-svc/internal/domain/models"
 	"github.com/r1nb0/food-app/product-svc/internal/repository"
 )
@@ -22,12 +26,8 @@ func (r *productRepository) Create(ctx context.Context, product models.ProductCr
 	stmt, err := r.db.PrepareContext(
 		ctx,
 		`INSERT INTO product (
-            name, 
-            description,
-            image_url,
-            price,
-            is_daily_rec,
-            category_id
+           name, description, image_url,
+           price, is_daily_rec, category_id
         ) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
 	)
 	if err != nil {
@@ -44,6 +44,13 @@ func (r *productRepository) Create(ctx context.Context, product models.ProductCr
 		product.IsDailyRec,
 		product.CategoryID,
 	).Scan(&id); err != nil {
+		var pgErr *pq.Error
+		if errors.As(err, &pgErr) {
+			switch pgErr.Code {
+			case postgres.ErrCodeUniqueViolation:
+				return 0, database.ErrAlreadyExists
+			}
+		}
 		return 0, err
 	}
 
@@ -71,7 +78,7 @@ func (r *productRepository) Delete(ctx context.Context, id int64) error {
 		return err
 	}
 	if rowsAffected == 0 {
-		return repository.ErrNotFound
+		return database.ErrNotFound
 	}
 
 	return nil
@@ -80,14 +87,8 @@ func (r *productRepository) Delete(ctx context.Context, id int64) error {
 func (r *productRepository) GetAll(ctx context.Context) ([]models.Product, error) {
 	stmt, err := r.db.PrepareContext(
 		ctx,
-		`SELECT 
-           id, 
-           name, 
-           description, 
-           image_url, 
-           price,
-           is_daily_rec, 
-           category_id 
+		`SELECT id, name, description, image_url, 
+           price, is_daily_rec, category_id 
          FROM product`,
 	)
 	if err != nil {
@@ -108,21 +109,19 @@ func (r *productRepository) GetAll(ctx context.Context) ([]models.Product, error
 		products = append(products, product)
 	}
 
+	if len(products) == 0 {
+		return nil, database.ErrNotFound
+	}
+
 	return products, nil
 }
 
 func (r *productRepository) GetByID(ctx context.Context, id int64) (models.Product, error) {
 	stmt, err := r.db.PrepareContext(
 		ctx,
-		`SELECT 
-           id, 
-           name, 
-           description, 
-           image_url, 
-           price, 
-           is_daily_rec, 
-           category_id 
-		FROM product WHERE id = $1`,
+		`SELECT id, name, description, image_url, 
+           price, is_daily_rec, category_id 
+		 FROM product WHERE id = $1`,
 	)
 	if err != nil {
 		return models.Product{}, err
@@ -138,6 +137,9 @@ func (r *productRepository) GetByID(ctx context.Context, id int64) (models.Produ
 		&product.IsDailyRec,
 		&product.CategoryID,
 	); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return models.Product{}, database.ErrNotFound
+		}
 		return models.Product{}, err
 	}
 
@@ -147,14 +149,8 @@ func (r *productRepository) GetByID(ctx context.Context, id int64) (models.Produ
 func (r *productRepository) GetDailyRecs(ctx context.Context) ([]models.Product, error) {
 	stmt, err := r.db.PrepareContext(
 		ctx,
-		`SELECT 
-           id, 
-           name, 
-           description, 
-           image_url, 
-           price, 
-           is_daily_rec, 
-           category_id 
+		`SELECT id,name,description,image_url, 
+           price,is_daily_rec,category_id 
          FROM product WHERE is_daily_rec = true`,
 	)
 	if err != nil {
@@ -175,21 +171,19 @@ func (r *productRepository) GetDailyRecs(ctx context.Context) ([]models.Product,
 		products = append(products, product)
 	}
 
+	if len(products) == 0 {
+		return nil, database.ErrNotFound
+	}
+
 	return products, nil
 }
 
 func (r *productRepository) GetByCategory(ctx context.Context, categoryID int64) ([]models.Product, error) {
 	stmt, err := r.db.PrepareContext(
 		ctx,
-		`SELECT 
-    	   id, 
-           name, 
-           description, 
-           image_url, 
-           price, 
-           is_daily_rec, 
-           category_id 
-        FROM product WHERE category_id = $1`,
+		`SELECT id, name, description, image_url, 
+           price, is_daily_rec, category_id 
+		 FROM product WHERE category_id = $1`,
 	)
 	if err != nil {
 		return nil, err
@@ -207,6 +201,10 @@ func (r *productRepository) GetByCategory(ctx context.Context, categoryID int64)
 			return nil, err
 		}
 		products = append(products, product)
+	}
+
+	if len(products) == 0 {
+		return nil, database.ErrNotFound
 	}
 
 	return products, nil

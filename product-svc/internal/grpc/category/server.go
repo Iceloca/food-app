@@ -2,6 +2,8 @@ package category
 
 import (
 	"context"
+	"errors"
+	"github.com/r1nb0/food-app/pkg/database"
 	"github.com/r1nb0/food-app/product-svc/internal/domain/models"
 	"github.com/r1nb0/food-app/product-svc/internal/service"
 	categoryv1 "github.com/r1nb0/protos/gen/go/category"
@@ -26,10 +28,15 @@ func (s *categoryServer) Create(
 ) (*categoryv1.CreateResponse, error) {
 	id, err := s.categoryService.Create(ctx, models.CategoryCreate{
 		Name:     req.GetName(),
-		ImageURL: req.GetImageURL(),
+		ImageURL: req.GetImageUrl(),
 	})
-
 	if err != nil {
+		if errors.Is(err, database.ErrAlreadyExists) {
+			return nil, status.Error(
+				codes.AlreadyExists,
+				"category with this name already exists",
+			)
+		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -41,11 +48,17 @@ func (s *categoryServer) Create(
 func (s *categoryServer) Update(
 	ctx context.Context, req *categoryv1.Category,
 ) (*categoryv1.UpdateResponse, error) {
-	if err := s.categoryService.Update(ctx, models.Category{
+	err := s.categoryService.Update(ctx, models.Category{
 		ID:       req.GetId(),
 		Name:     req.GetName(),
-		ImageURL: req.GetImageURL(),
-	}); err != nil {
+		ImageURL: req.GetImageUrl(),
+	})
+	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			return &categoryv1.UpdateResponse{
+				Success: false,
+			}, status.Error(codes.NotFound, "category not found")
+		}
 		return &categoryv1.UpdateResponse{
 			Success: false,
 		}, status.Error(codes.Internal, err.Error())
@@ -60,7 +73,13 @@ func (s *categoryServer) Delete(
 	ctx context.Context,
 	req *categoryv1.DeleteRequest,
 ) (*categoryv1.DeleteResponse, error) {
-	if err := s.categoryService.Delete(ctx, req.GetId()); err != nil {
+	err := s.categoryService.Delete(ctx, req.GetId())
+	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			return &categoryv1.DeleteResponse{
+				Success: false,
+			}, status.Error(codes.NotFound, "category not found")
+		}
 		return &categoryv1.DeleteResponse{
 			Success: false,
 		}, status.Error(codes.Internal, err.Error())
@@ -77,6 +96,9 @@ func (s *categoryServer) GetAll(
 ) error {
 	categories, err := s.categoryService.GetAll(stream.Context())
 	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			return status.Error(codes.NotFound, "categories not found")
+		}
 		return status.Error(codes.Internal, err.Error())
 	}
 
@@ -84,7 +106,7 @@ func (s *categoryServer) GetAll(
 		if err := stream.Send(&categoryv1.Category{
 			Id:       category.ID,
 			Name:     category.Name,
-			ImageURL: category.ImageURL,
+			ImageUrl: category.ImageURL,
 		}); err != nil {
 			return status.Error(codes.Internal, err.Error())
 		}
@@ -99,12 +121,15 @@ func (s *categoryServer) GetByID(
 ) (*categoryv1.Category, error) {
 	category, err := s.categoryService.GetByID(ctx, req.Id)
 	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			return nil, status.Error(codes.NotFound, "category not found")
+		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &categoryv1.Category{
 		Id:       category.ID,
 		Name:     category.Name,
-		ImageURL: category.ImageURL,
+		ImageUrl: category.ImageURL,
 	}, nil
 }

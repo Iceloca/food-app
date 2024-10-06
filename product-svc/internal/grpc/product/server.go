@@ -2,6 +2,8 @@ package product
 
 import (
 	"context"
+	"errors"
+	"github.com/r1nb0/food-app/pkg/database"
 	"github.com/r1nb0/food-app/product-svc/internal/domain/models"
 	"github.com/r1nb0/food-app/product-svc/internal/service"
 	productv1 "github.com/r1nb0/protos/gen/go/product"
@@ -28,6 +30,12 @@ func (s *productServer) Create(
 	newProduct := models.NewProductCreateFromGRPC(req)
 	id, err := s.productService.Create(ctx, newProduct)
 	if err != nil {
+		if errors.Is(err, database.ErrAlreadyExists) {
+			return nil, status.Error(
+				codes.AlreadyExists,
+				"product with this name already exists",
+			)
+		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -41,7 +49,11 @@ func (s *productServer) Update(
 	req *productv1.Product,
 ) (*productv1.UpdateResponse, error) {
 	updateProduct := models.NewProductFromGRPC(req)
-	if err := s.productService.Update(ctx, updateProduct); err != nil {
+	err := s.productService.Update(ctx, updateProduct)
+	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			return nil, status.Error(codes.NotFound, "product not found")
+		}
 		return &productv1.UpdateResponse{
 			Success: false,
 		}, status.Error(codes.Internal, err.Error())
@@ -58,6 +70,9 @@ func (s *productServer) GetByID(
 ) (*productv1.Product, error) {
 	product, err := s.productService.GetByID(ctx, req.Id)
 	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			return nil, status.Error(codes.NotFound, "product not found")
+		}
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -68,7 +83,11 @@ func (s *productServer) Delete(
 	ctx context.Context,
 	req *productv1.DeleteRequest,
 ) (*productv1.DeleteResponse, error) {
-	if err := s.productService.Delete(ctx, req.Id); err != nil {
+	err := s.productService.Delete(ctx, req.Id)
+	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			return nil, status.Error(codes.NotFound, "product not found")
+		}
 		return &productv1.DeleteResponse{
 			Success: false,
 		}, status.Error(codes.Internal, err.Error())
@@ -85,6 +104,9 @@ func (s *productServer) GetAll(
 ) error {
 	products, err := s.productService.GetAll(stream.Context())
 	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			return status.Error(codes.NotFound, "products not found")
+		}
 		return status.Error(codes.Internal, err.Error())
 	}
 
@@ -103,6 +125,9 @@ func (s *productServer) GetByCategory(
 ) error {
 	products, err := s.productService.GetByCategory(stream.Context(), req.CategoryId)
 	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			return status.Error(codes.NotFound, "products not found")
+		}
 		return status.Error(codes.Internal, err.Error())
 	}
 
@@ -121,6 +146,9 @@ func (s *productServer) GetDailyRecs(
 ) error {
 	products, err := s.productService.GetDailyRecs(stream.Context())
 	if err != nil {
+		if errors.Is(err, database.ErrNotFound) {
+			return status.Error(codes.NotFound, "daily recs not found")
+		}
 		return status.Error(codes.Internal, err.Error())
 	}
 

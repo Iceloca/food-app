@@ -2,8 +2,13 @@ package category
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
+	"github.com/r1nb0/food-app/pkg/database"
+	"github.com/r1nb0/food-app/pkg/database/postgres"
 	"github.com/r1nb0/food-app/product-svc/internal/domain/models"
 	"github.com/r1nb0/food-app/product-svc/internal/repository"
 	"strings"
@@ -20,13 +25,27 @@ func NewCategoryRepository(db *sqlx.DB) repository.CategoryRepository {
 }
 
 func (r *categoryRepository) Create(ctx context.Context, category models.CategoryCreate) (int64, error) {
-	stmt, err := r.db.PrepareContext(ctx, "INSERT INTO category (name, image_url) VALUES ($1, $2) RETURNING id")
+	stmt, err := r.db.PrepareContext(
+		ctx,
+		"INSERT INTO category (name, image_url) VALUES ($1, $2) RETURNING id",
+	)
 	if err != nil {
 		return 0, err
 	}
 
 	var id int64
-	if err = stmt.QueryRowContext(ctx, category.Name, category.ImageURL).Scan(&id); err != nil {
+	if err = stmt.QueryRowContext(
+		ctx,
+		category.Name,
+		category.ImageURL,
+	).Scan(&id); err != nil {
+		var pgErr *pq.Error
+		if errors.As(err, &pgErr) {
+			switch pgErr.Code {
+			case postgres.ErrCodeUniqueViolation:
+				return 0, database.ErrAlreadyExists
+			}
+		}
 		return 0, err
 	}
 
@@ -53,12 +72,15 @@ func (r *categoryRepository) Update(ctx context.Context, category models.Categor
 	}
 
 	if len(placeholders) == 0 {
-		return repository.ErrUpdate
+		return errors.New("no field to update")
 	}
 
 	args = append(args, category.ID)
 
-	stmt, err := r.db.PrepareContext(ctx, fmt.Sprintf("UPDATE category SET %s WHERE id = $%d", strings.Join(placeholders, ","), argID))
+	stmt, err := r.db.PrepareContext(
+		ctx,
+		fmt.Sprintf("UPDATE category SET %s WHERE id = $%d", strings.Join(placeholders, ","), argID),
+	)
 	if err != nil {
 		return err
 	}
@@ -73,7 +95,7 @@ func (r *categoryRepository) Update(ctx context.Context, category models.Categor
 		return err
 	}
 	if rowsAffected == 0 {
-		return repository.ErrNotFound
+		return database.ErrNotFound
 	}
 
 	return nil
@@ -95,7 +117,7 @@ func (r *categoryRepository) Delete(ctx context.Context, id int64) error {
 		return err
 	}
 	if rowsAffected == 0 {
-		return repository.ErrNotFound
+		return database.ErrNotFound
 	}
 
 	return nil
@@ -121,6 +143,10 @@ func (r *categoryRepository) GetAll(ctx context.Context) ([]models.Category, err
 		categories = append(categories, category)
 	}
 
+	if len(categories) == 0 {
+		return nil, database.ErrNotFound
+	}
+
 	return categories, nil
 }
 
@@ -131,7 +157,14 @@ func (r *categoryRepository) GetByID(ctx context.Context, id int64) (models.Cate
 	}
 
 	var category models.Category
-	if err = stmt.QueryRowContext(ctx, id).Scan(&category.ID, &category.Name, &category.ImageURL); err != nil {
+	if err = stmt.QueryRowContext(ctx, id).Scan(
+		&category.ID,
+		&category.Name,
+		&category.ImageURL,
+	); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return models.Category{}, database.ErrNotFound
+		}
 		return models.Category{}, err
 	}
 
