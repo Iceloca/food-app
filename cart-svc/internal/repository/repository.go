@@ -1,16 +1,16 @@
 package repository
 
 import (
-	"basket-svc/internal/domain/models"
 	"context"
+	"github.com/r1nb0/food-app/cart-svc/internal/domain/models"
 )
 
-type BasketRepository interface {
-	GetByID(ctx context.Context, id string) (models.Item, error)
-	GetAll(ctx context.Context) ([]models.Item, error)
-	Create(ctx context.Context, userID int64) (string, error)
-	Delete(ctx context.Context, id string) (bool, error)
-	AddItem(ctx context.Context, basketID string, item models.Item)
-	DeleteItem(ctx context.Context, basketID string, itemID int64) (bool, error)
-	UpdateItem(ctx context.Context, basketID string, item models.Item) (bool, error)
+type CartRepository interface {
+	GetByID(ctx context.Context, id string) (models.Cart, error)
+	GetAll(ctx context.Context) ([]models.Cart, error)
+	Create(ctx context.Context, cart models.CartCreate) (string, error)
+	Delete(ctx context.Context, id string) error
+	AddItem(ctx context.Context, basketID string, item models.Item) error
+	DeleteItem(ctx context.Context, basketID string, itemID int64) error
+	UpdateItem(ctx context.Context, basketID string, item models.Item) error
 }

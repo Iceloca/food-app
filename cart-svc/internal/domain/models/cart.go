@@ -28,6 +28,22 @@ func NewCartCreateFromGRPC(cart *cartv1.CreateRequest) CartCreate {
 	}
 }
 
+func (c *Cart) MapCartToGRPC() *cartv1.Cart {
+	var items []*cartv1.Item
+
+	for _, item := range c.Items {
+		protoItem := item.MapItemToGRPC()
+		items = append(items, protoItem)
+	}
+
+	return &cartv1.Cart{
+		Id:         c.ID,
+		UserId:     c.UserID,
+		Items:      items,
+		TotalPrice: c.TotalPrice,
+	}
+}
+
 func NewCartFromGRPC(cart *cartv1.Cart) Cart {
 	var items []Item
 	for _, protoItem := range cart.Items {

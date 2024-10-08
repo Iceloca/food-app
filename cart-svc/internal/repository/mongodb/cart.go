@@ -1,4 +1,4 @@
-package mongo
+package mongodb
 
 import (
 	"context"
@@ -15,14 +15,20 @@ type cartRepository struct {
 	collection *mongo.Collection
 }
 
-func NewCartRepository() repository.CartRepository {
-	return &cartRepository{}
+func NewCartRepository(collection *mongo.Collection) repository.CartRepository {
+	return &cartRepository{
+		collection: collection,
+	}
 }
 
 func (r *cartRepository) GetByID(ctx context.Context, id string) (models.Cart, error) {
-	var basket models.Cart
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return models.Cart{}, err
+	}
 
-	if err := r.collection.FindOne(ctx, bson.M{"_id": id}).Decode(&basket); err != nil {
+	var basket models.Cart
+	if err := r.collection.FindOne(ctx, bson.M{"_id": objectID}).Decode(&basket); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return models.Cart{}, database.ErrNotFound
 		}
@@ -52,6 +58,10 @@ func (r *cartRepository) GetAll(ctx context.Context) ([]models.Cart, error) {
 }
 
 func (r *cartRepository) Create(ctx context.Context, cart models.CartCreate) (string, error) {
+	if cart.Items == nil {
+		cart.Items = make([]models.Item, 0)
+	}
+
 	res, err := r.collection.InsertOne(ctx, cart)
 	if err != nil {
 		return "", err
@@ -62,7 +72,12 @@ func (r *cartRepository) Create(ctx context.Context, cart models.CartCreate) (st
 }
 
 func (r *cartRepository) Delete(ctx context.Context, id string) error {
-	if err := r.collection.FindOneAndDelete(ctx, bson.M{"_id": id}).Err(); err != nil {
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+
+	if err := r.collection.FindOneAndDelete(ctx, bson.M{"_id": objectID}).Err(); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return database.ErrNotFound
 		}
@@ -73,7 +88,12 @@ func (r *cartRepository) Delete(ctx context.Context, id string) error {
 }
 
 func (r *cartRepository) AddItem(ctx context.Context, basketID string, item models.Item) error {
-	_, err := r.collection.UpdateByID(ctx, basketID, bson.D{
+	objectBasketID, err := primitive.ObjectIDFromHex(basketID)
+	if err != nil {
+		return err
+	}
+
+	_, err = r.collection.UpdateByID(ctx, objectBasketID, bson.D{
 		{
 			"$push", bson.M{
 				"items": item,
@@ -90,7 +110,12 @@ func (r *cartRepository) AddItem(ctx context.Context, basketID string, item mode
 }
 
 func (r *cartRepository) DeleteItem(ctx context.Context, basketID string, itemID int64) error {
-	_, err := r.collection.UpdateByID(ctx, basketID, bson.D{
+	objectBasketID, err := primitive.ObjectIDFromHex(basketID)
+	if err != nil {
+		return err
+	}
+
+	_, err = r.collection.UpdateByID(ctx, objectBasketID, bson.D{
 		{
 			"$pull", bson.M{
 				"items": bson.M{

@@ -1,0 +1,8 @@
+grpc:
+  port : 46046
+  timeout : 5s
+mongodb:
+  host : localhost
+  port : 27017
+  dbname : "carts"
+  collection : "carts"
