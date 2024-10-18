@@ -1,8 +1,11 @@
 package com.example.foodapp.Domain.Product;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ProductResponse {
+import java.io.Serializable;
+
+public class ProductResponse implements Serializable {
 
     @JsonProperty("id")
     Integer id;

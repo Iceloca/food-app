@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class RegisterResponse {
 
-    @JsonProperty("id")
+    @JsonProperty("user_id")
     private int id;
 
     public int getId() {

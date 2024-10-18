@@ -1,7 +1,12 @@
 package com.example.foodapp.Activity;
 
+import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 
@@ -22,6 +27,14 @@ public class RegisterActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding=ActivityRegisterBinding.inflate(getLayoutInflater());
+
+        Window window = getWindow();
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(Color.WHITE); // Белый цвет
+        View decorView = window.getDecorView();
+        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+
         setContentView(binding.getRoot());
 
         setVariable();
@@ -57,6 +70,10 @@ public class RegisterActivity extends BaseActivity {
             @Override
             public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
+                    SharedPreferences sharedPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE);
+                    @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putInt("user_id", response.body().getId());
+                    editor.apply();
                     Toast.makeText(RegisterActivity.this, "Вы успешно зарегистрированы", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(RegisterActivity.this, "Аккаунт с введённой электронной почтой уже существует", Toast.LENGTH_SHORT).show();
@@ -65,6 +82,7 @@ public class RegisterActivity extends BaseActivity {
 
             @Override
             public void onFailure(Call<RegisterResponse> call, Throwable t) {
+                t.printStackTrace();
                 Toast.makeText(RegisterActivity.this, errorConnection, Toast.LENGTH_SHORT).show();
             }
         });
